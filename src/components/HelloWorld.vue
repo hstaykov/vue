@@ -1,28 +1,14 @@
 <template>
   <div class="hello">
     <h1>{{ msg }}</h1>
-    <h2>Essential Links</h2>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank">Forum</a></li>
-      <li><a href="https://gitter.im/vuejs/vue" target="_blank">Gitter Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank">Twitter</a></li>
-      <br>
-      <li><a href="http://vuejs-templates.github.io/webpack/" target="_blank">Docs for This Template</a></li>
-    </ul>
-    <h2>Ecosystem</h2>
-    <ul>
-      <li><a href="http://router.vuejs.org/" target="_blank">vue-router</a></li>
-      <li><a href="http://vuex.vuejs.org/" target="_blank">vuex</a></li>
-      <li><a href="http://vue-loader.vuejs.org/" target="_blank">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank">awesome-vue</a></li>
-    </ul>
+    <h2>Add a word</h2>
 
     <el-input ref="inputKey"  class="wordInput" placeholder="Description" v-model="addedKey"></el-input><el-input ref="inputValue" class="wordInput" placeholder="Word" v-model="addedValue"></el-input>
      <el-button type="success"  v-on:click="addWord">Add word</el-button>
-    <p> {{ statusMsg }}</p>
+
     <p> {{ currentUser.email }}</p>
-    <button v-on:click="logout">Logout</button>
+    <el-button type="danger"  v-on:click="logout">Logout</el-button>
+
   </div>
 </template>
 
@@ -50,10 +36,25 @@ export default {
       });
     },
     addWord: function () {
+      if(this.addedValue.toLowerCase().indexOf(' ') != -1){
+        this.showFail("Without spaces");
+        return;
+      }
+
+      if(!/^[а-я]+$/.test(this.addedValue.toLowerCase())){
+          this.showFail("Only bulgarian characters");
+          return;
+      }
+
+      if(this.addedKey.toLowerCase().length === 0 || this.addedValue.toLowerCase().length === 0){
+        this.showFail("The words are empty");
+        return;
+      }
       addWordToFirebase(this.addedKey.toLowerCase(), this.addedValue.toLowerCase());
-      this.statusMsg = "Word added...";
       this.showSuccess();
       this.addedValue = '';
+      this.addedKey = '';
+      inputKey.focus();
     },
     showSuccess() {
        this.$notify({
@@ -62,6 +63,13 @@ export default {
          type: 'success'
        });
   },
+  showFail(msg) {
+     this.$notify({
+       title: 'Fail',
+       message: msg,
+       type: 'error'
+     });
+   },
 },
   mounted (){
     inputKey = this.$refs.inputKey
@@ -71,25 +79,26 @@ export default {
 }
 
 function addWordToFirebase(key, value) {
-  if(key.length === 0 || value.length === 0){
-    alert("Add a proper word");
-  }
+  value = value.trim();
+
+
   let len = value.length;
   let db = firebase.firestore();
-  db.collection(len.toString()).doc(value).set({
-    key : key,
-    value : value,
-    addedBy : firebase.auth().currentUser.email,
-    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-  }).then(function(docRef) {
-    console.log("Document written with ID: ");
-    inputKey.focus();
-    inputKey.value = '';
-    inputValue.value = '';
-})
-.catch(function(error) {
-    console.error("Error adding document: ", error);
-});
+
+ var wordRef = db.collection(len.toString()).doc(value);
+db.runTransaction(transaction => {
+   return transaction.get(db.collection(len.toString()).doc('count')).then(res => {
+
+     let newCount = res.data().count+1;
+     transaction.set(db.collection(len.toString()).doc('count'), {count : newCount});
+     transaction.set(wordRef, {
+       key : key,
+       value : value,
+       addedBy : firebase.auth().currentUser.email,
+       timestamp: firebase.firestore.FieldValue.serverTimestamp()
+     });
+   })
+ })
 
 }
 
