@@ -16,6 +16,26 @@
 import firebase from 'firebase';
 require("firebase/firestore");
 
+
+
+
+
+
+// Get all the data so we can make fast queries
+
+
+
+
+
+let bigCrs = {
+  2: [],
+  3: [],
+  4: [],
+  5: [],
+  6: [],
+  7: []
+}
+
 let inputKey;
 let inputValue;
 export default {
@@ -36,6 +56,12 @@ export default {
       });
     },
     addWord: function () {
+
+
+
+
+
+
       if(this.addedValue.toLowerCase().indexOf(' ') != -1){
         this.showFail("Without spaces");
         return;
@@ -50,11 +76,39 @@ export default {
         this.showFail("The words are empty");
         return;
       }
-      addWordToFirebase(this.addedKey.toLowerCase(), this.addedValue.toLowerCase());
-      this.showSuccess();
-      this.addedValue = '';
-      this.addedKey = '';
-      inputKey.focus();
+
+      if(bigCrs[this.addedValue.toLowerCase()]){
+        this.$confirm('This will permanently delete the file. Continue?', 'Warning', {
+          confirmButtonText: 'OK',
+          cancelButtonText: 'Cancel',
+          type: 'warning'
+        }).then(() => {
+          alert(1);
+          this.$message({
+            type: 'success',
+            message: 'Delete completed'
+          });
+        }).catch(() => {
+            alert(2);
+          this.$message({
+            type: 'info',
+            message: 'Delete canceled'
+          });
+        });
+        // alert(bigCrs[this.addedValue.toLowerCase()].key)
+      }
+      else {
+        addWordToFirebase(this.addedKey.toLowerCase(), this.addedValue.toLowerCase());
+        this.showSuccess();
+        this.addedValue = '';
+        this.addedKey = '';
+        inputKey.focus();
+        updateLocalStore();
+      }
+
+
+
+
     },
     showSuccess() {
        this.$notify({
@@ -72,10 +126,48 @@ export default {
    },
 },
   mounted (){
+    console.log("aaaaaaaaaa");
+
+    updateLocalStore();
     inputKey = this.$refs.inputKey
     inputValue = this.$refs.inputValue
     inputKey.focus();
   },
+}
+
+
+function updateLocalStore(){
+  let db = firebase.firestore();
+  db.collection('2').get().then((querySnapshot) => {
+  querySnapshot.forEach((doc) => {
+  bigCrs[doc.data().value]=(doc.data())
+  });
+})
+  db.collection('3').get().then((querySnapshot) => {
+  querySnapshot.forEach((doc) => {
+  bigCrs[doc.data().value]=(doc.data())
+  });
+  })
+  db.collection('4').get().then((querySnapshot) => {
+  querySnapshot.forEach((doc) => {
+    bigCrs[doc.data().value]=(doc.data())
+  });
+  })
+  db.collection('5').get().then((querySnapshot) => {
+  querySnapshot.forEach((doc) => {
+    bigCrs[doc.data().value]=(doc.data())
+  });
+  })
+  db.collection('6').get().then((querySnapshot) => {
+  querySnapshot.forEach((doc) => {
+    bigCrs[doc.data().value]=(doc.data())
+  });
+  })
+  db.collection('7').get().then((querySnapshot) => {
+  querySnapshot.forEach((doc) => {
+    bigCrs[doc.data().value]=(doc.data())
+  });
+});
 }
 
 function addWordToFirebase(key, value) {
@@ -83,14 +175,16 @@ function addWordToFirebase(key, value) {
 
 
   let len = value.length;
+
   let db = firebase.firestore();
 
  var wordRef = db.collection(len.toString()).doc(value);
+ var statsRef = db.collection('stats').doc('wordCount');
 db.runTransaction(transaction => {
-   return transaction.get(db.collection(len.toString()).doc('count')).then(res => {
+   return transaction.get(statsRef).then(res => {
 
-     let newCount = res.data().count+1;
-     transaction.set(db.collection(len.toString()).doc('count'), {count : newCount});
+     let newCount = res.data().allWords + 1;
+     transaction.set(statsRef, {allWords : newCount});
      transaction.set(wordRef, {
        key : key,
        value : value,
