@@ -78,22 +78,24 @@ export default {
       }
 
       if(bigCrs[this.addedValue.toLowerCase()]){
-        this.$confirm('This will permanently delete the file. Continue?', 'Warning', {
-          confirmButtonText: 'OK',
-          cancelButtonText: 'Cancel',
+        this.$confirm('Already added <b>' + bigCrs[this.addedValue.toLowerCase()].key + '\n  </b>Do you want to override it ?' , 'Warning', {
+          dangerouslyUseHTMLString: true,
+          confirmButtonText: 'Yes',
+          cancelButtonText: 'No',
           type: 'warning'
         }).then(() => {
-          alert(1);
-          this.$message({
-            type: 'success',
-            message: 'Delete completed'
-          });
+          addWordToFirebase(this.addedKey.toLowerCase(), this.addedValue.toLowerCase());
+          this.showSuccess();
+          this.addedValue = '';
+          this.addedKey = '';
+          inputKey.focus();
+          updateLocalStore();
+
         }).catch(() => {
-            alert(2);
-          this.$message({
-            type: 'info',
-            message: 'Delete canceled'
-          });
+
+          this.addedValue = '';
+          this.addedKey = '';
+          inputKey.focus();
         });
         // alert(bigCrs[this.addedValue.toLowerCase()].key)
       }
