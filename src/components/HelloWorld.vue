@@ -89,7 +89,7 @@ export default {
           this.addedValue = '';
           this.addedKey = '';
           inputKey.focus();
-          updateLocalStore();
+          
 
         }).catch(() => {
 
@@ -169,6 +169,16 @@ function updateLocalStore(){
   querySnapshot.forEach((doc) => {
     bigCrs[doc.data().value]=(doc.data())
   });
+});
+db.collection('8').get().then((querySnapshot) => {
+querySnapshot.forEach((doc) => {
+  bigCrs[doc.data().value]=(doc.data())
+});
+});
+db.collection('9').get().then((querySnapshot) => {
+querySnapshot.forEach((doc) => {
+  bigCrs[doc.data().value]=(doc.data())
+});
 });
 }
 
