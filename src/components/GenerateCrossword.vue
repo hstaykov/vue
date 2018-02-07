@@ -10,7 +10,7 @@
 import firebase from 'firebase'
 
 
- let d = generateCrossword();
+ // let d = generateCrossword();
 
 let data ={ a:
    { word: 'манила',
