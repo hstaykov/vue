@@ -76,37 +76,48 @@ export default {
         this.showFail("The words are empty");
         return;
       }
+      let value = this.addedValue.toLowerCase();
+      let db = firebase.database();
+      let len = value.length;
+      let ref = db.ref(len + "/" + value);
+      let that = this;
+      ref.once('value').then(function (snapshot) {
+        let  exists = snapshot.val();
+        if(exists){
+          console.log("======================");
+          that.$confirm('Already added <b>' + exists.key + '\n  </b>Do you want to override it ?' , 'Warning', {
+            dangerouslyUseHTMLString: true,
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No',
+            type: 'warning'
+          }).then(() => {
+            addWordToFirebase(that.addedKey.toLowerCase(), that.addedValue.toLowerCase());
+            // addWordToFirestore(this.addedKey.toLowerCase(), this.addedValue.toLowerCase());
+            that.showSuccess();
+            that.addedValue = '';
+            that.addedKey = '';
+            inputKey.focus();
 
-      if(bigCrs[this.addedValue.toLowerCase()]){
-        this.$confirm('Already added <b>' + bigCrs[this.addedValue.toLowerCase()].key + '\n  </b>Do you want to override it ?' , 'Warning', {
-          dangerouslyUseHTMLString: true,
-          confirmButtonText: 'Yes',
-          cancelButtonText: 'No',
-          type: 'warning'
-        }).then(() => {
-          addWordToFirebase(this.addedKey.toLowerCase(), this.addedValue.toLowerCase());
-          this.showSuccess();
-          this.addedValue = '';
-          this.addedKey = '';
+
+          }).catch(() => {
+
+            that.addedValue = '';
+            that.addedKey = '';
+            inputKey.focus();
+          });
+          // alert(bigCrs[this.addedValue.toLowerCase()].key)
+        }
+        else {
+          addWordToFirebase(that.addedKey.toLowerCase(), that.addedValue.toLowerCase());
+          // addWordToFirestore(this.addedKey.toLowerCase(), this.addedValue.toLowerCase());
+          that.showSuccess();
+          that.addedValue = '';
+          that.addedKey = '';
           inputKey.focus();
-          
+          // updateLocalStore();
+        }
+      })
 
-        }).catch(() => {
-
-          this.addedValue = '';
-          this.addedKey = '';
-          inputKey.focus();
-        });
-        // alert(bigCrs[this.addedValue.toLowerCase()].key)
-      }
-      else {
-        addWordToFirebase(this.addedKey.toLowerCase(), this.addedValue.toLowerCase());
-        this.showSuccess();
-        this.addedValue = '';
-        this.addedKey = '';
-        inputKey.focus();
-        updateLocalStore();
-      }
 
 
 
@@ -130,7 +141,7 @@ export default {
   mounted (){
     console.log("aaaaaaaaaa");
 
-    updateLocalStore();
+    // updateLocalStore();
     inputKey = this.$refs.inputKey
     inputValue = this.$refs.inputValue
     inputKey.focus();
@@ -182,10 +193,8 @@ querySnapshot.forEach((doc) => {
 });
 }
 
-function addWordToFirebase(key, value) {
+function addWordToFirestore(key, value) {
   value = value.trim();
-
-
   let len = value.length;
 
   let db = firebase.firestore();
@@ -205,8 +214,21 @@ db.runTransaction(transaction => {
      });
    })
  })
-
 }
+
+function addWordToFirebase(key, value) {
+  let db = firebase.database();
+  let len = value.length;
+  let ref = db.ref(len + "/" + value);
+  ref.set({
+    key : key,
+    value : value,
+    addedBy : firebase.auth().currentUser.email,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  })
+}
+
+
 
 </script>
 
