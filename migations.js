@@ -1,7 +1,7 @@
 console.log("SSSSSSSSSSSSSSss")
 var fs = require('fs');
 var firebase = require('firebase')
-var obj = JSON.parse(fs.readFileSync('ada.json', 'utf8'));
+var obj = JSON.parse(fs.readFileSync('9.json', 'utf8'));
 //
 
 
@@ -16,18 +16,6 @@ const config = {
 
 firebase.initializeApp(config);
 var db = firebase.database();
-
-firebase.auth().signInWithEmailAndPassword("riceto.new@gmail.com", "riceto123").then(
-  (user) => {
-
-  },
-  (err) => {
-
-  }
-);
-
-// addWordToFirebase("aaa", "bbb")
-
 function addWordToFirebase(key, value) {
   let len = value.length;
   let ref = db.ref(len + "/" + value);
@@ -38,8 +26,21 @@ function addWordToFirebase(key, value) {
     timestamp: firebase.database.ServerValue.TIMESTAMP
   })
 }
-for (var x = 2; x < obj.length+2; x++) {
-  for (var i = 0; i < obj[x].length; i++) {
-    addWordToFirebase(obj[x][i].key, obj[x][i].value)
+firebase.auth().signInWithEmailAndPassword("riceto.new@gmail.com", "riceto123").then(
+  (user) => {
+    // addWordToFirebase("aaa", "bbb34")
+    for (var i = 0; i < Object.values(Object.values(obj)[0]).length; i++) {
+      console.log(Object.values(Object.values(obj)[0])[i].value);
+      addWordToFirebase(Object.values(Object.values(obj)[0])[i].key, Object.values(Object.values(obj)[0])[i].value)
+    }
+  },
+  (err) => {
+
   }
-}
+);
+
+// addWordToFirebase("aaa", "bbb")
+console.log(Object.values(Object.values(obj)[0]).length);
+// for (var i = 0; i < Object.values(Object.values(obj)[0]).length; i++) {
+//   console.log(Object.values(Object.values(obj)[0])[i].value);
+// }
