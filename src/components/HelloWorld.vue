@@ -16,26 +16,6 @@
 import firebase from 'firebase';
 require("firebase/firestore");
 
-
-
-
-
-
-// Get all the data so we can make fast queries
-
-
-
-
-
-let bigCrs = {
-  2: [],
-  3: [],
-  4: [],
-  5: [],
-  6: [],
-  7: []
-}
-
 let inputKey;
 let inputValue;
 export default {
@@ -56,12 +36,6 @@ export default {
       });
     },
     addWord: function () {
-
-
-
-
-
-
       if(this.addedValue.toLowerCase().indexOf(' ') != -1){
         this.showFail("Without spaces");
         return;
@@ -92,7 +66,7 @@ export default {
             type: 'warning'
           }).then(() => {
             addWordToFirebase(that.addedKey.toLowerCase(), that.addedValue.toLowerCase());
-            // addWordToFirestore(this.addedKey.toLowerCase(), this.addedValue.toLowerCase());
+
             that.showSuccess();
             that.addedValue = '';
             that.addedKey = '';
@@ -105,23 +79,18 @@ export default {
             that.addedKey = '';
             inputKey.focus();
           });
-          // alert(bigCrs[this.addedValue.toLowerCase()].key)
+
         }
         else {
           addWordToFirebase(that.addedKey.toLowerCase(), that.addedValue.toLowerCase());
-          // addWordToFirestore(this.addedKey.toLowerCase(), this.addedValue.toLowerCase());
+
           that.showSuccess();
           that.addedValue = '';
           that.addedKey = '';
           inputKey.focus();
-          // updateLocalStore();
+
         }
       })
-
-
-
-
-
     },
     showSuccess() {
        this.$notify({
@@ -139,82 +108,13 @@ export default {
    },
 },
   mounted (){
-    console.log("aaaaaaaaaa");
 
-    // updateLocalStore();
     inputKey = this.$refs.inputKey
     inputValue = this.$refs.inputValue
     inputKey.focus();
   },
 }
 
-
-function updateLocalStore(){
-  let db = firebase.firestore();
-  db.collection('2').get().then((querySnapshot) => {
-  querySnapshot.forEach((doc) => {
-  bigCrs[doc.data().value]=(doc.data())
-  });
-})
-  db.collection('3').get().then((querySnapshot) => {
-  querySnapshot.forEach((doc) => {
-  bigCrs[doc.data().value]=(doc.data())
-  });
-  })
-  db.collection('4').get().then((querySnapshot) => {
-  querySnapshot.forEach((doc) => {
-    bigCrs[doc.data().value]=(doc.data())
-  });
-  })
-  db.collection('5').get().then((querySnapshot) => {
-  querySnapshot.forEach((doc) => {
-    bigCrs[doc.data().value]=(doc.data())
-  });
-  })
-  db.collection('6').get().then((querySnapshot) => {
-  querySnapshot.forEach((doc) => {
-    bigCrs[doc.data().value]=(doc.data())
-  });
-  })
-  db.collection('7').get().then((querySnapshot) => {
-  querySnapshot.forEach((doc) => {
-    bigCrs[doc.data().value]=(doc.data())
-  });
-});
-db.collection('8').get().then((querySnapshot) => {
-querySnapshot.forEach((doc) => {
-  bigCrs[doc.data().value]=(doc.data())
-});
-});
-db.collection('9').get().then((querySnapshot) => {
-querySnapshot.forEach((doc) => {
-  bigCrs[doc.data().value]=(doc.data())
-});
-});
-}
-
-function addWordToFirestore(key, value) {
-  value = value.trim();
-  let len = value.length;
-
-  let db = firebase.firestore();
-
- var wordRef = db.collection(len.toString()).doc(value);
- var statsRef = db.collection('stats').doc('wordCount');
-db.runTransaction(transaction => {
-   return transaction.get(statsRef).then(res => {
-
-     let newCount = res.data().allWords + 1;
-     transaction.set(statsRef, {allWords : newCount});
-     transaction.set(wordRef, {
-       key : key,
-       value : value,
-       addedBy : firebase.auth().currentUser.email,
-       timestamp: firebase.firestore.FieldValue.serverTimestamp()
-     });
-   })
- })
-}
 
 function addWordToFirebase(key, value) {
   let db = firebase.database();
