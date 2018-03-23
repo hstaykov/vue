@@ -1,5 +1,5 @@
 // let firebase = require('firebase')
-import myData from '../assets/data.json';
+import myData from "../assets/data.json";
 
 console.log("Start");
 
@@ -97,8 +97,9 @@ function findTheWord(word) {
   for (var i = 0; i < localWords[size].length; i++) {
     correct = true;
     for (var j = 0; j < word.depends.length; j++) {
-      let postion = Object.values(word.depends[j])[1];
       let selfPos = Object.values(word.depends[j])[0];
+      let postion = Object.values(word.depends[j])[1];
+
       let dependableWord = crs[Object.keys(word.depends[j])[1]];
       // console.log(allWords[size][i].value[postion]);
       // console.log("1 " + dependableWord.word[postion]);
@@ -140,8 +141,8 @@ function shuffle(array) {
 }
 
 function fillLocalWords() {
-// console.log(myData);
-  var obj = myData
+  // console.log(myData);
+  var obj = myData;
 
   for (var j = 2; j < 10; j++) {
     for (var i = 0; i < Object.values(obj[j]).length; i++) {
@@ -157,12 +158,11 @@ function generateCrossword() {
     localWords[i] = shuffle(localWords[i]);
   }
   console.log(localWords[6][0].value);
-  crs.a.word = localWords[6][0].value
-  crs.a.description = localWords[6].key
+  crs.a.word = localWords[6][0].value;
+  crs.a.description = localWords[6][0].key;
   Object.keys(crs).map(e => findTheWord(crs[e]));
   console.log(crs);
   return crs;
 }
-var myLibrary = {
-  generateCrossword : generateCrossword
-}
+
+export default generateCrossword;

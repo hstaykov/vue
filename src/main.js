@@ -7,11 +7,11 @@ import 'element-ui/lib/theme-chalk/index.css';
 import Vue from 'vue';
 import App from './App';
 import router from './router';
-import gen from './utils/generate';
+// import gen from './utils/generate.js';
 
 Vue.config.productionTip = false;
 Vue.use(ElementUI);
-Vue.use(gen);
+// Vue.use(gen);
 let app;
 const config = {
   apiKey: 'AIzaSyBbzztDdpCgB91N8RxXnTCnbRq_RKu0Dmk',
