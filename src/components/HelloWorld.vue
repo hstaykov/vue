@@ -58,7 +58,6 @@ export default {
       ref.once('value').then(function (snapshot) {
         let  exists = snapshot.val();
         if(exists){
-          console.log("======================");
           that.$confirm('Already added <b>' + exists.key + '\n  </b>Do you want to override it ?' , 'Warning', {
             dangerouslyUseHTMLString: true,
             confirmButtonText: 'Yes',
